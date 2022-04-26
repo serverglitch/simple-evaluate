@@ -1,17 +1,16 @@
+import get from 'get-value';
+import { OPERATION } from './compiler';
+import token from './token';
+
+export const evaluate = (context: any, ref: any, expr: string) => {
+  const yard = new ShuntingYard(token(expr));
+  return yard.parse(context, ref);
+}
+
 /**
  * Shunting-yard algorithm
  * @see https://en.wikipedia.org/wiki/Shunting-yard_algorithm
  */
-
-const get = require('get-value');
-import { OPERATION } from './compiler';
-import token from './token';
-
-export const evaluate = (context: any, expr: string) => {
-  const yard = new ShuntingYard(token(expr));
-  return yard.parse(context);
-}
-
 export default class ShuntingYard {
   private values: string[] = [];
   private operations: string[] = [];
@@ -21,7 +20,7 @@ export default class ShuntingYard {
     this.token = token;
   }
 
-  parse(context: object) {
+  parse(context: object, ref: object) {
     for (let tok of this.token) {
       const level = OPERATION[tok];
       if (level || tok === '(') {
@@ -47,13 +46,13 @@ export default class ShuntingYard {
         this.values.push(operator);
       }
     } while (operator !== undefined)
-    return this.calc(context);
+    return this.calc(context, ref);
   }
 
-  private calc(context: object) {
+  private calc(context: object, ref: object) {
     let values: string[] = [];
     if (this.values.length === 1) {
-      return this.getValue(this.values[0], context);
+      return this.getValue(this.values[0], context, ref);
     }
 
     for (let tok of this.values) {
@@ -62,8 +61,8 @@ export default class ShuntingYard {
       } else {
         values.push(this.evaluate(
           tok,
-          this.getValue(values.pop() as string, context),
-          this.getValue(values.pop() as string, context)
+          this.getValue(values.pop() as string, context, ref),
+          this.getValue(values.pop() as string, context, ref)
         ));
       }
     }
@@ -99,11 +98,15 @@ export default class ShuntingYard {
         return left && right;
       case '||':
         return left || right;
+      case '|+':
+        return (left ?? []).filter((v: string | number) => (right ?? []).includes(v)).length > 0;
+      case '|-':
+        return (left ?? []).filter((v: string | number) => !(right ?? []).includes(v)).length > 0;
     }
 
   }
 
-  private getValue(val: string | number, context: any) {
+  private getValue(val: string | number, context: any, ref: any) {
     if (val === null || OPERATION[val] !== undefined) {
       throw new Error('unknow value ' + val);
     }
@@ -113,8 +116,12 @@ export default class ShuntingYard {
     }
 
     // 上下文查找
-    if (val.indexOf('$.') === 0) {
-      return get(context, val.slice(2));
+    if (val.indexOf('@') === 0) {
+      return get(context, val.slice(1));
+    }
+
+    if (val.indexOf('$') === 0) {
+      return get(ref, val.slice(1));
     }
 
     // 字符串

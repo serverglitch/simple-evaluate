@@ -31,7 +31,6 @@ class Lexer {
 
       '\'': OperationType.STRING,
       '"': OperationType.STRING,
-      '`': OperationType.STRING,
 
       '!': OperationType.COMPARISON,
       '>': OperationType.COMPARISON,
@@ -82,7 +81,7 @@ class Lexer {
       // we must move the pos forward
       // so here we should throw error, for example `1 & 2`
       if (pos === this.currentIndex && tok !== undefined) {
-        const err = new Error(`unkonw token ${tok} from input string ${this.input}`);
+        const err = new Error(`unknown token ${tok} from input string ${this.input}`);
         err.name = 'UnknowToken';
         throw err;
       }
@@ -152,6 +151,10 @@ class Lexer {
         return this.receiveToken(3);
       }
       // == && ||
+      return this.receiveToken(2);
+    }
+    if (this.pickNext() === '+' || this.pickNext() === '-') {
+      // |+ |-
       return this.receiveToken(2);
     }
     // handle as &&

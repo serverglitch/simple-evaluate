@@ -1,5 +1,5 @@
 import evaluate from './simple-evaluate';
-const get = require('get-value');
+import get from 'get-value';
 
 export const OPERATION: { [key: string]: number } = {
   '!': 5,
@@ -8,6 +8,8 @@ export const OPERATION: { [key: string]: number } = {
   '%': 4,
   '+': 3,
   '-': 3,
+  '|+': 2,
+  '|-': 2,
   '>': 2,
   '<': 2,
   '>=': 2,
@@ -79,9 +81,9 @@ export default class Compiler {
     return root;
   }
 
-  calc(node: Node | string, context: any): any {
+  calc(node: Node | string, context: any, ref: any): any {
     if (typeof node === 'string') {
-      return this.getValue(node, context);
+      return this.getValue(node, context, ref);
     }
 
     // 不支持的运算符号
@@ -90,15 +92,15 @@ export default class Compiler {
     }
 
     if (node.operation === '!' && node.right) {
-      return !this.getValue(node.right, context);
+      return !this.getValue(node.right, context, ref);
     }
 
-    const left = this.getValue(node.left, context);
+    const left = this.getValue(node.left, context, ref);
     if (node.operation === undefined) {
       return left;
     }
 
-    const right = this.getValue(node.right, context);
+    const right = this.getValue(node.right, context, ref);
 
     switch(node.operation) {
       case '*':
@@ -184,27 +186,27 @@ export default class Compiler {
   }
 
 
-  private getValue(val: string | Node | null, context: any) {
+  private getValue(val: string | Node | null, context: any, ref: any) {
     if (typeof val !== 'string' && val !== null) {
-      return this.calc(val, context);
+      return this.calc(val, context, ref);
     }
 
     if (val === null || OPERATION[val] !== undefined) {
       throw new Error('unknow value ' + val);
     }
 
+    if (val.indexOf('@') !== -1) {
+      return this.getValueFn(context, val.slice(1));
+    }
+
     // 上下文查找
-    if (val.indexOf('$.') !== -1) {
-      return this.getValueFn(context, val.slice(2));
+    if (val.indexOf('$') !== -1) {
+      return this.getValueFn(ref, val.slice(1));
     }
 
     // 字符串
     if (val[0] === '\'' || val[0] === '"') {
       return val.slice(1, -1);
-    }
-
-    if (val[0] === '`') {
-      return this.parseTemplateString(val.slice(1, -1), context);
     }
 
     // 布尔
@@ -223,12 +225,6 @@ export default class Compiler {
 
     // all other lookup from context
     return this.getValueFn(context, val);
-  }
-
-  private parseTemplateString(input: string, context: any) {
-    return input.replace(/\${(.*?)}/g, (_a, b) => {
-      return evaluate(context, b, { getValue: this.getValueFn });
-    });
   }
 
   private parseStatement(): string | Node | null {
