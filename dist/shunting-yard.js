@@ -99,7 +99,9 @@ var ShuntingYard = /** @class */ (function () {
             case '|+':
                 return (left !== null && left !== void 0 ? left : []).filter(function (v) { return (right !== null && right !== void 0 ? right : []).includes(v); }).length > 0;
             case '|-':
-                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return !(right !== null && right !== void 0 ? right : []).includes(v); }).length > 0;
+                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return !(right !== null && right !== void 0 ? right : []).includes(v); }).length < (left !== null && left !== void 0 ? left : []).length;
+            case '|=':
+                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return (right !== null && right !== void 0 ? right : []).includes(v); }).length === (right !== null && right !== void 0 ? right : []).length;
         }
     };
     ShuntingYard.prototype.getValue = function (val, context, ref) {

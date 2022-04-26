@@ -10,6 +10,7 @@ export const OPERATION: { [key: string]: number } = {
   '-': 3,
   '|+': 2,
   '|-': 2,
+  '|=': 2,
   '>': 2,
   '<': 2,
   '>=': 2,

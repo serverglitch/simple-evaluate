@@ -101,9 +101,10 @@ export default class ShuntingYard {
       case '|+':
         return (left ?? []).filter((v: string | number) => (right ?? []).includes(v)).length > 0;
       case '|-':
-        return (left ?? []).filter((v: string | number) => !(right ?? []).includes(v)).length > 0;
+        return (left ?? []).filter((v: string | number) => !(right ?? []).includes(v)).length < (left ?? []).length;
+      case '|=':
+        return (left ?? []).filter((v: string | number) => (right ?? []).includes(v)).length === (right ?? []).length;
     }
-
   }
 
   private getValue(val: string | number, context: any, ref: any) {

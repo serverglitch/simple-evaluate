@@ -15,7 +15,7 @@ describe('context & ref objects', () => {
   });
 });
 
-describe('intersection & difference', () => {
+describe('intersection & exclusion & all', () => {
   it('finds an intersection', () => {
     evaluate(
       {sheet: {factions: ['good']}},
@@ -32,13 +32,23 @@ describe('intersection & difference', () => {
     ).should.equal(false);
   });
 
-  it('finds a difference', () => {
-    evaluate({factions: ['good']}, {faction: ['good']}, '@factions |- $factions')
+  it('finds an exclusion', () => {
+    evaluate({factions: ['good', 'bad']}, {factions: ['bad']}, '@factions |- $factions')
       .should.equal(true);
   });
 
-  it('does not find a difference', () => {
-    evaluate({factions: ['good']}, {faction: ['god']}, '@factions |- $factions')
+  it('does not find an exclusion', () => {
+    evaluate({factions: ['good', 'bad']}, {factions: ['god']}, '@factions |- $factions')
+      .should.equal(false);
+  });
+
+  it('finds all', () => {
+    evaluate({factions: ['good', 'bad', 'maybe']}, {factions: ['good', 'bad']}, '@factions |= $factions')
       .should.equal(true);
+  });
+
+  it('does not find all', () => {
+    evaluate({factions: ['good', 'bad']}, {factions: ['good', 'maybe']}, '@factions |= $factions')
+      .should.equal(false);
   });
 });

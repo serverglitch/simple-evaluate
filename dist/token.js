@@ -135,7 +135,7 @@ var Lexer = /** @class */ (function () {
             // == && ||
             return this.receiveToken(2);
         }
-        if (this.pickNext() === '+' || this.pickNext() === '-') {
+        if (this.pickNext() === '+' || this.pickNext() === '-' || this.pickNext() === '=') {
             // |+ |-
             return this.receiveToken(2);
         }
