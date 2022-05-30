@@ -1,28 +1,27 @@
-import evaluate from './simple-evaluate';
-import get from 'get-value';
+import get from "get-value";
 
 export const OPERATION: { [key: string]: number } = {
-  '!': 5,
-  '*': 4,
-  '/': 4,
-  '%': 4,
-  '+': 3,
-  '-': 3,
-  '|+': 2,
-  '|-': 2,
-  '|=': 2,
-  '>': 2,
-  '<': 2,
-  '>=': 2,
-  '<=': 2,
-  '===': 2,
-  '!==': 2,
-  '==': 2,
-  '!=': 2,
-  '&&': 1,
-  '||': 1,
-  '?': 1,
-  ':': 1,
+  "!": 5,
+  "*": 4,
+  "/": 4,
+  "%": 4,
+  "+": 3,
+  "-": 3,
+  "|+": 2,
+  "|-": 2,
+  "|=": 2,
+  ">": 2,
+  "<": 2,
+  ">=": 2,
+  "<=": 2,
+  "===": 2,
+  "!==": 2,
+  "==": 2,
+  "!=": 2,
+  "&&": 1,
+  "||": 1,
+  "?": 1,
+  ":": 1,
 };
 
 export interface Node {
@@ -30,12 +29,11 @@ export interface Node {
   right: Node | string | null;
   operation: string;
   grouped?: boolean;
-};
+}
 
 export type GetValueFunction<T = object> = (context: T, path: string) => any;
 
 export default class Compiler {
-
   blockLevel = 0;
   private index = -1;
   private getValueFn: GetValueFunction;
@@ -72,8 +70,8 @@ export default class Compiler {
 
         root.right = this.parseStatement();
       } else {
-        if (typeof tok !== 'string') {
-          throw new Error('operation must be string, but get ' + JSON.stringify(tok));
+        if (typeof tok !== "string") {
+          throw new Error("operation must be string, but get " + JSON.stringify(tok));
         }
         root = this.addNode(tok, this.parseStatement(), root);
       }
@@ -83,16 +81,16 @@ export default class Compiler {
   }
 
   calc(node: Node | string, context: any, ref: any): any {
-    if (typeof node === 'string') {
+    if (typeof node === "string") {
       return this.getValue(node, context, ref);
     }
 
     // 不支持的运算符号
     if (OPERATION[node.operation] === undefined) {
-      throw new Error('unknow expression ' + node.operation);
+      throw new Error("unknow expression " + node.operation);
     }
 
-    if (node.operation === '!' && node.right) {
+    if (node.operation === "!" && node.right) {
       return !this.getValue(node.right, context, ref);
     }
 
@@ -103,42 +101,42 @@ export default class Compiler {
 
     const right = this.getValue(node.right, context, ref);
 
-    switch(node.operation) {
-      case '*':
+    switch (node.operation) {
+      case "*":
         return left * right;
-      case '/':
+      case "/":
         return left / right;
-      case '+':
+      case "+":
         return left + right;
-      case '-':
+      case "-":
         return left - right;
-      case '>':
+      case ">":
         return left > right;
-      case '%':
+      case "%":
         return left % right;
-      case '<':
+      case "<":
         return left < right;
-      case '>=':
+      case ">=":
         return left >= right;
-      case '<=':
+      case "<=":
         return left <= right;
-      case '==':
+      case "==":
         // tslint:disable-next-line:triple-equals
         return left == right;
-      case '===':
+      case "===":
         // tslint:disable-next-line:triple-equals
         return left === right;
-      case '!==':
+      case "!==":
         // tslint:disable-next-line:triple-equals
         return left !== right;
-      case '!=':
+      case "!=":
         // tslint:disable-next-line:triple-equals
         return left != right;
-      case '&&':
-      case '?':
+      case "&&":
+      case "?":
         return left && right;
-      case '||':
-      case ':':
+      case "||":
+      case ":":
         return left || right;
     }
   }
@@ -157,9 +155,12 @@ export default class Compiler {
     // 增加右节点
     if (this.compare(pre.operation, operation) < 0 && !pre.grouped) {
       // 依次找到最右一个节点
-      while (pre.right !== null &&
-        typeof pre.right !== 'string' &&
-        this.compare(pre.right.operation, operation) < 0 && !pre.right.grouped) {
+      while (
+        pre.right !== null &&
+        typeof pre.right !== "string" &&
+        this.compare(pre.right.operation, operation) < 0 &&
+        !pre.right.grouped
+      ) {
         pre = pre.right;
       }
 
@@ -176,7 +177,7 @@ export default class Compiler {
       left: pre,
       right,
       operation,
-    }
+    };
   }
 
   private compare(a: string, b: string) {
@@ -186,36 +187,35 @@ export default class Compiler {
     return OPERATION[a] - OPERATION[b];
   }
 
-
   private getValue(val: string | Node | null, context: any, ref: any) {
-    if (typeof val !== 'string' && val !== null) {
+    if (typeof val !== "string" && val !== null) {
       return this.calc(val, context, ref);
     }
 
     if (val === null || OPERATION[val] !== undefined) {
-      throw new Error('unknow value ' + val);
+      throw new Error("unknow value " + val);
     }
 
-    if (val.indexOf('@') !== -1) {
+    if (val.indexOf("@") !== -1) {
       return this.getValueFn(context, val.slice(1));
     }
 
     // 上下文查找
-    if (val.indexOf('$') !== -1) {
+    if (val.indexOf("$") !== -1) {
       return this.getValueFn(ref, val.slice(1));
     }
 
     // 字符串
-    if (val[0] === '\'' || val[0] === '"') {
+    if (val[0] === "'" || val[0] === '"') {
       return val.slice(1, -1);
     }
 
     // 布尔
-    if (val === 'true') {
+    if (val === "true") {
       return true;
     }
 
-    if (val === 'false') {
+    if (val === "false") {
       return false;
     }
     // is number
@@ -230,28 +230,28 @@ export default class Compiler {
 
   private parseStatement(): string | Node | null {
     const token = this.nextToken();
-    if (token === '(') {
+    if (token === "(") {
       this.blockLevel += 1;
       const node = this.parse();
       this.blockLevel -= 1;
 
-      if (typeof node !== 'string') {
+      if (typeof node !== "string") {
         node.grouped = true;
       }
       return node;
     }
 
-    if (token === ')') {
+    if (token === ")") {
       return null;
     }
 
-    if (token === '!') {
-      return { left: null, operation: token, right: this.parseStatement() }
+    if (token === "!") {
+      return { left: null, operation: token, right: this.parseStatement() };
     }
 
     // 3 > -12 or -12 + 10
-    if (token === '-' && (OPERATION[this.prevToken()] > 0 || this.prevToken() === undefined)) {
-      return { left: '0', operation: token, right: this.parseStatement(), grouped: true };
+    if (token === "-" && (OPERATION[this.prevToken()] > 0 || this.prevToken() === undefined)) {
+      return { left: "0", operation: token, right: this.parseStatement(), grouped: true };
     }
 
     return token;

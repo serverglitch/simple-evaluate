@@ -26,18 +26,18 @@ var ShuntingYard = /** @class */ (function () {
         for (var _i = 0, _a = this.token; _i < _a.length; _i++) {
             var tok = _a[_i];
             var level = compiler_1.OPERATION[tok];
-            if (level || tok === '(') {
+            if (level || tok === "(") {
                 this.pushOperationStask(tok);
                 continue;
             }
-            else if (tok === ')') {
+            else if (tok === ")") {
                 var lastOp = void 0;
                 do {
                     lastOp = this.operations.pop();
-                    if (lastOp !== '(') {
+                    if (lastOp !== "(") {
                         this.values.push(lastOp);
                     }
-                } while (lastOp !== '(');
+                } while (lastOp !== "(");
             }
             else {
                 this.values.push(tok);
@@ -72,63 +72,63 @@ var ShuntingYard = /** @class */ (function () {
         var l_arr = left !== null && left !== void 0 ? left : [];
         var r_arr = right !== null && right !== void 0 ? right : [];
         switch (expr) {
-            case '*':
+            case "*":
                 return left * right;
-            case '/':
+            case "/":
                 return left / right;
-            case '+':
+            case "+":
                 return left + right;
-            case '-':
+            case "-":
                 return left - right;
-            case '>':
+            case ">":
                 return left > right;
-            case '<':
+            case "<":
                 return left < right;
-            case '>=':
+            case ">=":
                 return left >= right;
-            case '<=':
+            case "<=":
                 return left <= right;
-            case '==':
+            case "==":
                 // tslint:disable-next-line:triple-equals
                 return left == right;
-            case '!=':
+            case "!=":
                 // tslint:disable-next-line:triple-equals
                 return left != right;
-            case '&&':
+            case "&&":
                 return left && right;
-            case '||':
+            case "||":
                 return left || right;
-            case '|+':
+            case "|+":
                 return l_arr.filter(function (v) { return r_arr.includes(v); }).length > 0;
-            case '|-':
+            case "|-":
                 return l_arr.filter(function (v) { return !r_arr.includes(v); }).length < l_arr.length;
-            case '|=':
+            case "|=":
                 return l_arr.filter(function (v) { return r_arr.includes(v); }).length === r_arr.length;
         }
     };
     ShuntingYard.prototype.getValue = function (val, context, ref) {
         if (val === null || compiler_1.OPERATION[val] !== undefined) {
-            throw new Error('unknow value ' + val);
+            throw new Error("unknow value " + val);
         }
-        if (typeof val !== 'string') {
+        if (typeof val !== "string") {
             return val;
         }
         // 上下文查找
-        if (val.indexOf('@') === 0) {
+        if (val.indexOf("@") === 0) {
             return (0, get_value_1.default)(context, val.slice(1));
         }
-        if (val.indexOf('$') === 0) {
+        if (val.indexOf("$") === 0) {
             return (0, get_value_1.default)(ref, val.slice(1));
         }
         // 字符串
-        if (val[0] === '\'' || val[0] === '"') {
+        if (val[0] === "'" || val[0] === '"') {
             return val.slice(1, -1);
         }
         // 布尔
-        if (val === 'true') {
+        if (val === "true") {
             return true;
         }
-        if (val === 'false') {
+        if (val === "false") {
             return false;
         }
         // 其他都算数字
@@ -139,8 +139,8 @@ var ShuntingYard = /** @class */ (function () {
         // the first stack item, or push an high leval operation, for example
         // ['+'], and push *
         if (this.operations.length === 0 ||
-            operation === '(' ||
-            lastOp === '(' ||
+            operation === "(" ||
+            lastOp === "(" ||
             compiler_1.OPERATION[lastOp] < compiler_1.OPERATION[operation]) {
             this.operations.push(operation);
         }

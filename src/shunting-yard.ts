@@ -1,11 +1,11 @@
-import get from 'get-value';
-import { OPERATION } from './compiler';
-import token from './token';
+import get from "get-value";
+import { OPERATION } from "./compiler";
+import token from "./token";
 
 export const evaluate = (context: any, ref: any, expr: string) => {
   const yard = new ShuntingYard(token(expr));
   return yard.parse(context, ref);
-}
+};
 
 /**
  * Shunting-yard algorithm
@@ -23,17 +23,17 @@ export default class ShuntingYard {
   parse(context: object, ref: object) {
     for (let tok of this.token) {
       const level = OPERATION[tok];
-      if (level || tok === '(') {
+      if (level || tok === "(") {
         this.pushOperationStask(tok);
         continue;
-      } else if (tok === ')') {
+      } else if (tok === ")") {
         let lastOp;
         do {
           lastOp = this.operations.pop();
-          if (lastOp !== '(') {
+          if (lastOp !== "(") {
             this.values.push(lastOp as string);
           }
-        } while (lastOp !== '(');
+        } while (lastOp !== "(");
       } else {
         this.values.push(tok);
       }
@@ -45,7 +45,7 @@ export default class ShuntingYard {
       if (operator !== undefined) {
         this.values.push(operator);
       }
-    } while (operator !== undefined)
+    } while (operator !== undefined);
     return this.calc(context, ref);
   }
 
@@ -59,11 +59,13 @@ export default class ShuntingYard {
       if (!OPERATION[tok]) {
         values.push(tok);
       } else {
-        values.push(this.evaluate(
-          tok,
-          this.getValue(values.pop() as string, context, ref),
-          this.getValue(values.pop() as string, context, ref)
-        ));
+        values.push(
+          this.evaluate(
+            tok,
+            this.getValue(values.pop() as string, context, ref),
+            this.getValue(values.pop() as string, context, ref)
+          )
+        );
       }
     }
 
@@ -74,71 +76,71 @@ export default class ShuntingYard {
     const l_arr = left ?? [];
     const r_arr = right ?? [];
 
-    switch(expr) {
-      case '*':
+    switch (expr) {
+      case "*":
         return left * right;
-      case '/':
+      case "/":
         return left / right;
-      case '+':
+      case "+":
         return left + right;
-      case '-':
+      case "-":
         return left - right;
-      case '>':
+      case ">":
         return left > right;
-      case '<':
+      case "<":
         return left < right;
-      case '>=':
+      case ">=":
         return left >= right;
-      case '<=':
+      case "<=":
         return left <= right;
-      case '==':
+      case "==":
         // tslint:disable-next-line:triple-equals
         return left == right;
-      case '!=':
+      case "!=":
         // tslint:disable-next-line:triple-equals
         return left != right;
-      case '&&':
+      case "&&":
         return left && right;
-      case '||':
+      case "||":
         return left || right;
-      case '|+':
+      case "|+":
         return l_arr.filter((v: string | number) => r_arr.includes(v)).length > 0;
-      case '|-':
+      case "|-":
         return l_arr.filter((v: string | number) => !r_arr.includes(v)).length < l_arr.length;
-      case '|=':
+      case "|=":
         return l_arr.filter((v: string | number) => r_arr.includes(v)).length === r_arr.length;
     }
   }
 
   private getValue(val: string | number, context: any, ref: any) {
     if (val === null || OPERATION[val] !== undefined) {
-      throw new Error('unknow value ' + val);
+      throw new Error("unknow value " + val);
     }
 
-    if (typeof val !== 'string') {
+    if (typeof val !== "string") {
       return val;
     }
 
     // 上下文查找
-    if (val.indexOf('@') === 0) {
+    if (val.indexOf("@") === 0) {
       return get(context, val.slice(1));
     }
 
-    if (val.indexOf('$') === 0) {
+    if (val.indexOf("$") === 0) {
       return get(ref, val.slice(1));
     }
 
     // 字符串
-    if (val[0] === '\'' || val[0] === '"') {
+    if (val[0] === "'" || val[0] === '"') {
       return val.slice(1, -1);
     }
 
     // 布尔
-    if (val === 'true') {
+    if (val === "true") {
       return true;
     }
 
-    if (val === 'false') {
+    if (val === "false") {
       return false;
     }
 
@@ -150,10 +152,12 @@ export default class ShuntingYard {
     const lastOp = this.operations[this.operations.length - 1];
     // the first stack item, or push an high leval operation, for example
     // ['+'], and push *
-    if (this.operations.length === 0 ||
-      operation === '(' ||
-      lastOp === '(' ||
-      OPERATION[lastOp] < OPERATION[operation]) {
+    if (
+      this.operations.length === 0 ||
+      operation === "(" ||
+      lastOp === "(" ||
+      OPERATION[lastOp] < OPERATION[operation]
+    ) {
       this.operations.push(operation);
     } else {
       this.values.push(this.operations.pop() as string);

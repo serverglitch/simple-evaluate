@@ -6,29 +6,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OPERATION = void 0;
 var get_value_1 = __importDefault(require("get-value"));
 exports.OPERATION = {
-    '!': 5,
-    '*': 4,
-    '/': 4,
-    '%': 4,
-    '+': 3,
-    '-': 3,
-    '|+': 2,
-    '|-': 2,
-    '|=': 2,
-    '>': 2,
-    '<': 2,
-    '>=': 2,
-    '<=': 2,
-    '===': 2,
-    '!==': 2,
-    '==': 2,
-    '!=': 2,
-    '&&': 1,
-    '||': 1,
-    '?': 1,
-    ':': 1,
+    "!": 5,
+    "*": 4,
+    "/": 4,
+    "%": 4,
+    "+": 3,
+    "-": 3,
+    "|+": 2,
+    "|-": 2,
+    "|=": 2,
+    ">": 2,
+    "<": 2,
+    ">=": 2,
+    "<=": 2,
+    "===": 2,
+    "!==": 2,
+    "==": 2,
+    "!=": 2,
+    "&&": 1,
+    "||": 1,
+    "?": 1,
+    ":": 1,
 };
-;
 var Compiler = /** @class */ (function () {
     function Compiler(token, getValue) {
         this.blockLevel = 0;
@@ -59,8 +58,8 @@ var Compiler = /** @class */ (function () {
                 root.right = this.parseStatement();
             }
             else {
-                if (typeof tok !== 'string') {
-                    throw new Error('operation must be string, but get ' + JSON.stringify(tok));
+                if (typeof tok !== "string") {
+                    throw new Error("operation must be string, but get " + JSON.stringify(tok));
                 }
                 root = this.addNode(tok, this.parseStatement(), root);
             }
@@ -68,14 +67,14 @@ var Compiler = /** @class */ (function () {
         return root;
     };
     Compiler.prototype.calc = function (node, context, ref) {
-        if (typeof node === 'string') {
+        if (typeof node === "string") {
             return this.getValue(node, context, ref);
         }
         // 不支持的运算符号
         if (exports.OPERATION[node.operation] === undefined) {
-            throw new Error('unknow expression ' + node.operation);
+            throw new Error("unknow expression " + node.operation);
         }
-        if (node.operation === '!' && node.right) {
+        if (node.operation === "!" && node.right) {
             return !this.getValue(node.right, context, ref);
         }
         var left = this.getValue(node.left, context, ref);
@@ -84,41 +83,41 @@ var Compiler = /** @class */ (function () {
         }
         var right = this.getValue(node.right, context, ref);
         switch (node.operation) {
-            case '*':
+            case "*":
                 return left * right;
-            case '/':
+            case "/":
                 return left / right;
-            case '+':
+            case "+":
                 return left + right;
-            case '-':
+            case "-":
                 return left - right;
-            case '>':
+            case ">":
                 return left > right;
-            case '%':
+            case "%":
                 return left % right;
-            case '<':
+            case "<":
                 return left < right;
-            case '>=':
+            case ">=":
                 return left >= right;
-            case '<=':
+            case "<=":
                 return left <= right;
-            case '==':
+            case "==":
                 // tslint:disable-next-line:triple-equals
                 return left == right;
-            case '===':
+            case "===":
                 // tslint:disable-next-line:triple-equals
                 return left === right;
-            case '!==':
+            case "!==":
                 // tslint:disable-next-line:triple-equals
                 return left !== right;
-            case '!=':
+            case "!=":
                 // tslint:disable-next-line:triple-equals
                 return left != right;
-            case '&&':
-            case '?':
+            case "&&":
+            case "?":
                 return left && right;
-            case '||':
-            case ':':
+            case "||":
+            case ":":
                 return left || right;
         }
     };
@@ -135,8 +134,9 @@ var Compiler = /** @class */ (function () {
         if (this.compare(pre.operation, operation) < 0 && !pre.grouped) {
             // 依次找到最右一个节点
             while (pre.right !== null &&
-                typeof pre.right !== 'string' &&
-                this.compare(pre.right.operation, operation) < 0 && !pre.right.grouped) {
+                typeof pre.right !== "string" &&
+                this.compare(pre.right.operation, operation) < 0 &&
+                !pre.right.grouped) {
                 pre = pre.right;
             }
             pre.right = {
@@ -160,28 +160,28 @@ var Compiler = /** @class */ (function () {
         return exports.OPERATION[a] - exports.OPERATION[b];
     };
     Compiler.prototype.getValue = function (val, context, ref) {
-        if (typeof val !== 'string' && val !== null) {
+        if (typeof val !== "string" && val !== null) {
             return this.calc(val, context, ref);
         }
         if (val === null || exports.OPERATION[val] !== undefined) {
-            throw new Error('unknow value ' + val);
+            throw new Error("unknow value " + val);
         }
-        if (val.indexOf('@') !== -1) {
+        if (val.indexOf("@") !== -1) {
             return this.getValueFn(context, val.slice(1));
         }
         // 上下文查找
-        if (val.indexOf('$') !== -1) {
+        if (val.indexOf("$") !== -1) {
             return this.getValueFn(ref, val.slice(1));
         }
         // 字符串
-        if (val[0] === '\'' || val[0] === '"') {
+        if (val[0] === "'" || val[0] === '"') {
             return val.slice(1, -1);
         }
         // 布尔
-        if (val === 'true') {
+        if (val === "true") {
             return true;
         }
-        if (val === 'false') {
+        if (val === "false") {
             return false;
         }
         // is number
@@ -194,24 +194,24 @@ var Compiler = /** @class */ (function () {
     };
     Compiler.prototype.parseStatement = function () {
         var token = this.nextToken();
-        if (token === '(') {
+        if (token === "(") {
             this.blockLevel += 1;
             var node = this.parse();
             this.blockLevel -= 1;
-            if (typeof node !== 'string') {
+            if (typeof node !== "string") {
                 node.grouped = true;
             }
             return node;
         }
-        if (token === ')') {
+        if (token === ")") {
             return null;
         }
-        if (token === '!') {
+        if (token === "!") {
             return { left: null, operation: token, right: this.parseStatement() };
         }
         // 3 > -12 or -12 + 10
-        if (token === '-' && (exports.OPERATION[this.prevToken()] > 0 || this.prevToken() === undefined)) {
-            return { left: '0', operation: token, right: this.parseStatement(), grouped: true };
+        if (token === "-" && (exports.OPERATION[this.prevToken()] > 0 || this.prevToken() === undefined)) {
+            return { left: "0", operation: token, right: this.parseStatement(), grouped: true };
         }
         return token;
     };
