@@ -69,6 +69,8 @@ var ShuntingYard = /** @class */ (function () {
         return values[0];
     };
     ShuntingYard.prototype.evaluate = function (expr, right, left) {
+        var l_arr = left !== null && left !== void 0 ? left : [];
+        var r_arr = right !== null && right !== void 0 ? right : [];
         switch (expr) {
             case '*':
                 return left * right;
@@ -97,11 +99,11 @@ var ShuntingYard = /** @class */ (function () {
             case '||':
                 return left || right;
             case '|+':
-                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return (right !== null && right !== void 0 ? right : []).includes(v); }).length > 0;
+                return l_arr.filter(function (v) { return r_arr.includes(v); }).length > 0;
             case '|-':
-                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return !(right !== null && right !== void 0 ? right : []).includes(v); }).length < (left !== null && left !== void 0 ? left : []).length;
+                return l_arr.filter(function (v) { return !r_arr.includes(v); }).length < l_arr.length;
             case '|=':
-                return (left !== null && left !== void 0 ? left : []).filter(function (v) { return (right !== null && right !== void 0 ? right : []).includes(v); }).length === (right !== null && right !== void 0 ? right : []).length;
+                return l_arr.filter(function (v) { return r_arr.includes(v); }).length === r_arr.length;
         }
     };
     ShuntingYard.prototype.getValue = function (val, context, ref) {

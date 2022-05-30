@@ -71,6 +71,9 @@ export default class ShuntingYard {
   }
 
   private evaluate(expr: string, right: any, left: any) {
+    const l_arr = left ?? [];
+    const r_arr = right ?? [];
+
     switch(expr) {
       case '*':
         return left * right;
@@ -99,11 +102,11 @@ export default class ShuntingYard {
       case '||':
         return left || right;
       case '|+':
-        return (left ?? []).filter((v: string | number) => (right ?? []).includes(v)).length > 0;
+        return l_arr.filter((v: string | number) => r_arr.includes(v)).length > 0;
       case '|-':
-        return (left ?? []).filter((v: string | number) => !(right ?? []).includes(v)).length < (left ?? []).length;
+        return l_arr.filter((v: string | number) => !r_arr.includes(v)).length < l_arr.length;
       case '|=':
-        return (left ?? []).filter((v: string | number) => (right ?? []).includes(v)).length === (right ?? []).length;
+        return l_arr.filter((v: string | number) => r_arr.includes(v)).length === r_arr.length;
     }
   }
 
