@@ -184,11 +184,12 @@ export default class Compiler {
     if (!OPERATION.hasOwnProperty(a) || !OPERATION.hasOwnProperty(b)) {
       throw new Error(`unknow operation ${a} or ${b}`);
     }
-    return OPERATION[a] - OPERATION[b];
+    return OPERATION[a]! - OPERATION[b]!;
   }
 
   private getValue(val: string | Node | null, context: any, ref: any) {
-    if (typeof val !== "string" && val !== null) {
+    if (typeof val !== "string") {
+      if (val === null) throw new Error("unknow value");
       return this.calc(val, context, ref);
     }
 

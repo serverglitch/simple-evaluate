@@ -160,7 +160,9 @@ var Compiler = /** @class */ (function () {
         return exports.OPERATION[a] - exports.OPERATION[b];
     };
     Compiler.prototype.getValue = function (val, context, ref) {
-        if (typeof val !== "string" && val !== null) {
+        if (typeof val !== "string") {
+            if (val === null)
+                throw new Error("unknow value");
             return this.calc(val, context, ref);
         }
         if (val === null || exports.OPERATION[val] !== undefined) {
