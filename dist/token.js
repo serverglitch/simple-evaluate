@@ -18,26 +18,26 @@ var Lexer = /** @class */ (function () {
         // result token list
         this.tokenList = [];
         // input string
-        this.input = '';
+        this.input = "";
         // operation table
         this.optable = {
-            '=': OperationType.LOGIC,
-            '&': OperationType.LOGIC,
-            '|': OperationType.LOGIC,
-            '?': OperationType.LOGIC,
-            ':': OperationType.LOGIC,
-            '\'': OperationType.STRING,
+            "=": OperationType.LOGIC,
+            "&": OperationType.LOGIC,
+            "|": OperationType.LOGIC,
+            "?": OperationType.LOGIC,
+            ":": OperationType.LOGIC,
+            "'": OperationType.STRING,
             '"': OperationType.STRING,
-            '!': OperationType.COMPARISON,
-            '>': OperationType.COMPARISON,
-            '<': OperationType.COMPARISON,
-            '(': OperationType.MATH,
-            ')': OperationType.MATH,
-            '+': OperationType.MATH,
-            '-': OperationType.MATH,
-            '*': OperationType.MATH,
-            '/': OperationType.MATH,
-            '%': OperationType.MATH,
+            "!": OperationType.COMPARISON,
+            ">": OperationType.COMPARISON,
+            "<": OperationType.COMPARISON,
+            "(": OperationType.MATH,
+            ")": OperationType.MATH,
+            "+": OperationType.MATH,
+            "-": OperationType.MATH,
+            "*": OperationType.MATH,
+            "/": OperationType.MATH,
+            "%": OperationType.MATH,
         };
         this.input = expression;
     }
@@ -69,7 +69,7 @@ var Lexer = /** @class */ (function () {
             // so here we should throw error, for example `1 & 2`
             if (pos === this.currentIndex && tok !== undefined) {
                 var err = new Error("unknown token ".concat(tok, " from input string ").concat(this.input));
-                err.name = 'UnknowToken';
+                err.name = "UnknowToken";
                 throw err;
             }
         } while (tok !== undefined);
@@ -113,12 +113,12 @@ var Lexer = /** @class */ (function () {
     // > or < or >= or <= or !==
     // tok in (>, <, !)
     Lexer.prototype.readCompare = function (tok) {
-        if (this.pickNext() !== '=') {
+        if (this.pickNext() !== "=") {
             this.receiveToken(1);
             return;
         }
         // !==
-        if (tok === '!' && this.pickNext(1) === '=') {
+        if (tok === "!" && this.pickNext(1) === "=") {
             this.receiveToken(3);
             return;
         }
@@ -129,19 +129,19 @@ var Lexer = /** @class */ (function () {
     Lexer.prototype.readLogicOpt = function (tok) {
         if (this.pickNext() === tok) {
             // ===
-            if (tok === '=' && this.pickNext(1) === tok) {
+            if (tok === "=" && this.pickNext(1) === tok) {
                 return this.receiveToken(3);
             }
             // == && ||
             return this.receiveToken(2);
         }
-        if (this.pickNext() === '+' || this.pickNext() === '-' || this.pickNext() === '=') {
+        if (this.pickNext() === "+" || this.pickNext() === "-" || this.pickNext() === "=") {
             // |+ |-
             return this.receiveToken(2);
         }
         // handle as &&
         // a ? b : c is equal to a && b || c
-        if (tok === '?' || tok === ':') {
+        if (tok === "?" || tok === ":") {
             return this.receiveToken(1);
         }
     };
